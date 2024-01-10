@@ -1,6 +1,7 @@
 package com.nsicolo.springcloud.msvc.usuarios.models.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name="usuarios")//Si no defino el nombre de la tabla, esta adquiere el nombre de la tabla.
@@ -10,11 +11,15 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty(message = "El campo nombre no puede ser vacio")
     private String nombre; //TOKENS: private(kw), String(kw) nombre(Identificador).
 
+    @Email
     @Column(unique = true)
+    @NotEmpty
     private String email;
 
+    @NotEmpty
     private String password;
 
     public long getId() {

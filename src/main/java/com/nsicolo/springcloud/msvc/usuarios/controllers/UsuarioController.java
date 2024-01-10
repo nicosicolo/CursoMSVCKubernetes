@@ -2,12 +2,16 @@ package com.nsicolo.springcloud.msvc.usuarios.controllers;
 
 import com.nsicolo.springcloud.msvc.usuarios.models.entity.Usuario;
 import com.nsicolo.springcloud.msvc.usuarios.services.UsuariosService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController//Combina response body y handler controller
@@ -22,7 +26,10 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}") //VariablePath {variable}
-    public ResponseEntity<?> detalle (@PathVariable Long id){ //De forma automatica va a inyectar el id que llegue del url siempre que coincida con el nombre del argumento. Deben coincidar path variable y argumento del metodo.
+    public ResponseEntity<?> detalle (@Valid @PathVariable Long id, BindingResult result){//De forma automatica va a inyectar el id que llegue del url siempre que coincida con el nombre del argumento. Deben coincidar path variable y argumento del metodo.
+        if (result.hasErrors()) {
+            return validar(result);
+        }
         Optional<Usuario> opcional = service.findbyId(id);
         if(opcional.isPresent())
             return ResponseEntity.ok(opcional.get());
@@ -31,12 +38,18 @@ public class UsuarioController {
 
     @PostMapping //ninguna ruta porque se envia en la raiz ya que solo queremos guardar
     //@ResponseStatus(HttpStatus.CREATED)//Status 201
-    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario){ //Con @RequestBody el body que enviemos en la peticion se va a convertir automaticamente en un objeto usuario.
+    public ResponseEntity<?> crearUsuario(@Valid @RequestBody Usuario usuario, BindingResult result){ //Con @RequestBody el body que enviemos en la peticion se va a convertir automaticamente en un objeto usuario.
+        if (result.hasErrors()) {
+            return validar(result);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(usuario));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editarUsuario(@RequestBody Usuario usuario, @PathVariable Long id){
+    public ResponseEntity<?> editarUsuario(@Valid @RequestBody Usuario usuario, BindingResult result, @PathVariable Long id){
+        if (result.hasErrors()) {
+            return validar(result);
+        }
         Optional<Usuario> opcional = service.findbyId(id);
         if (opcional.isPresent()){
             Usuario usuarioDb = opcional.get();
@@ -57,5 +70,15 @@ public class UsuarioController {
         }
         return ResponseEntity.notFound().build();
 
+    }
+
+    private static ResponseEntity<Map<String, String>> validar(BindingResult result) {
+        Map<String, String> errores = new HashMap<>(); //Hago un map del tipo CampoDelError/Detalle del error.
+        result.getFieldErrors().forEach(
+                error -> {
+                    errores.put(error.getField(), "El campo " + error.getField() + " " + error.getDefaultMessage());
+                }
+        );
+        return ResponseEntity.badRequest().body(errores);
     }
 }

@@ -2,6 +2,7 @@ package com.nsicolo.springcloud.msvc.usuarios.controllers;
 
 import com.nsicolo.springcloud.msvc.usuarios.models.entity.Usuario;
 import com.nsicolo.springcloud.msvc.usuarios.services.UsuariosService;
+import feign.Response;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,10 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController//Combina response body y handler controller
 public class UsuarioController {
@@ -39,6 +37,12 @@ public class UsuarioController {
     @PostMapping //ninguna ruta porque se envia en la raiz ya que solo queremos guardar
     //@ResponseStatus(HttpStatus.CREATED)//Status 201
     public ResponseEntity<?> crearUsuario(@Valid @RequestBody Usuario usuario, BindingResult result){ //Con @RequestBody el body que enviemos en la peticion se va a convertir automaticamente en un objeto usuario.
+        if(!usuario.getEmail().isEmpty() && service.findByEmailQuery(usuario.getEmail()).isPresent()){
+            //Existe un usuario con ese mismo email
+            return ResponseEntity.badRequest()
+                    .body(Collections.
+                            singletonMap("Mensaje", "Ya existe un usuario con ese mail."));
+        }
         if (result.hasErrors()) {
             return validar(result);
         }
@@ -53,6 +57,13 @@ public class UsuarioController {
         Optional<Usuario> opcional = service.findbyId(id);
         if (opcional.isPresent()){
             Usuario usuarioDb = opcional.get();
+            if( !usuario.getEmail().equalsIgnoreCase(usuarioDb.getEmail()) &&
+                !usuario.getEmail().isEmpty() && service.findByEmail(usuario.getEmail()).isPresent()){
+                //Existe un usuario con ese mismo email
+                return ResponseEntity.badRequest()
+                        .body(Collections.
+                                singletonMap("Mensaje", "Ya existe un usuario con ese mail."));
+            }
             usuarioDb.setNombre(usuario.getNombre());
             usuarioDb.setEmail(usuario.getEmail());
             usuarioDb.setPassword(usuario.getPassword());

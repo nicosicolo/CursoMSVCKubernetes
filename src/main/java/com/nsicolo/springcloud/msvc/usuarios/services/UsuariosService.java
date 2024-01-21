@@ -8,6 +8,9 @@ import java.util.Optional;
 public interface UsuariosService {
     List<Usuario> findAllUsers();
     Optional<Usuario> findbyId(Long id);
+    Optional<Usuario> findByEmail(String email);
+    Optional<Usuario> findByEmailQuery(String email);
     Usuario guardar(Usuario usuario);
     void eliminar(Long id);
+    boolean existeEmail(String email);
 }

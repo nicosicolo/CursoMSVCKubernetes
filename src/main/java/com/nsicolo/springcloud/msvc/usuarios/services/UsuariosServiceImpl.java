@@ -28,6 +28,16 @@ public class UsuariosServiceImpl implements UsuariosService{
     }
 
     @Override
+    public Optional<Usuario> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public Optional<Usuario> findByEmailQuery(String email) {
+        return userRepository.findByEmailQuery(email);
+    }
+
+    @Override
     @Transactional
     public Usuario guardar(Usuario usuario) {
         return userRepository.save(usuario);
@@ -37,5 +47,9 @@ public class UsuariosServiceImpl implements UsuariosService{
     @Transactional
     public void eliminar(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public boolean existeEmail(String email){
+        return userRepository.existsByEmail(email);
     }
 }

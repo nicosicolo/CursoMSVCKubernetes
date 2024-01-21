@@ -11,15 +11,15 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "El campo nombre no puede ser vacio")
+    @NotBlank
     private String nombre; //TOKENS: private(kw), String(kw) nombre(Identificador).
 
     @Email
     @Column(unique = true)
-    @NotEmpty
+    @NotBlank
     private String email;
 
-    @NotEmpty
+    @NotBlank
     private String password;
 
     public long getId() {

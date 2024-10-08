@@ -24,10 +24,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}") //VariablePath {variable}
-    public ResponseEntity<?> detalle (@Valid @PathVariable Long id, BindingResult result){//De forma automatica va a inyectar el id que llegue del url siempre que coincida con el nombre del argumento. Deben coincidar path variable y argumento del metodo.
-        if (result.hasErrors()) {
-            return validar(result);
-        }
+    public ResponseEntity<?> detalle (@Valid @PathVariable Long id){//De forma automatica va a inyectar el id que llegue del url siempre que coincida con el nombre del argumento. Deben coincidar path variable y argumento del metodo.
         Optional<Usuario> opcional = service.findbyId(id);
         if(opcional.isPresent())
             return ResponseEntity.ok(opcional.get());
